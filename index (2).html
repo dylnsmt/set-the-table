@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Set The Table — Meal Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #F9F5EF;
+      --parchment: #EFE8DC;
+      --terracotta: #C4623A;
+      --terracotta-light: #E8906C;
+      --terracotta-dark: #9A4427;
+      --forest: #2D4A3E;
+      --forest-light: #4A7060;
+      --ink: #1C1C1A;
+      --ink-muted: #5A5750;
+      --ink-faint: #9A958E;
+      --border: rgba(28,28,26,0.12);
+      --border-strong: rgba(28,28,26,0.22);
+      --shadow-sm: 0 1px 3px rgba(28,28,26,0.08), 0 1px 2px rgba(28,28,26,0.04);
+      --shadow-md: 0 4px 12px rgba(28,28,26,0.10), 0 2px 4px rgba(28,28,26,0.06);
+      --shadow-lg: 0 12px 32px rgba(28,28,26,0.12), 0 4px 8px rgba(28,28,26,0.06);
+      --radius: 10px;
+      --radius-lg: 16px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--cream);
+      background-image:
+        radial-gradient(ellipse at 20% 10%, rgba(196,98,58,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(45,74,62,0.06) 0%, transparent 50%);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(249,245,239,0.92);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 2rem;
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .logo-mark {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--terracotta);
+      line-height: 1;
+    }
+    .logo-sub {
+      font-size: 12px;
+      color: var(--ink-faint);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+    .header-tagline {
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3.5rem 2rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 2rem;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 6vw, 54px);
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 0.75rem;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--terracotta);
+    }
+    .hero p {
+      font-size: 16px;
+      color: var(--ink-muted);
+      font-weight: 300;
+      line-height: 1.6;
+      max-width: 500px;
+    }
+    .hero-ornament {
+      font-size: 72px;
+      line-height: 1;
+      opacity: 0.18;
+      user-select: none;
+    }
+
+    /* ── Main layout ── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    /* ── Panel ── */
+    .panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .panel-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .panel-title .icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--parchment);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    /* ── Ingredient input ── */
+    .ing-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .ing-row input[type="text"], .ing-row input[type="number"] {
+      height: 42px;
+      padding: 0 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .ing-row input[type="text"] { flex: 1; min-width: 160px; }
+    .ing-row input[type="text"]:focus, .ing-row input[type="number"]:focus {
+      border-color: var(--terracotta);
+      box-shadow: 0 0 0 3px rgba(196,98,58,0.12);
+    }
+    .ing-row input[type="text"]::placeholder,
+    .ing-row input[type="number"]::placeholder { color: var(--ink-faint); }
+    .ing-row input.qty-field { flex: 0 0 72px; width: 72px; }
+    .ing-row select.unit-select {
+      flex: 0 0 100px;
+      width: 100px;
+      height: 42px;
+      padding: 0 28px 0 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--ink);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%239A958E' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      transition: border-color 0.15s;
+    }
+    .ing-row select.unit-select:focus {
+      border-color: var(--terracotta);
+      box-shadow: 0 0 0 3px rgba(196,98,58,0.12);
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      height: 42px;
+      padding: 0 18px;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--terracotta);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--terracotta-dark); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      color: var(--ink-muted);
+    }
+    .btn-outline:hover { background: var(--parchment); color: var(--ink); }
+    .btn-ghost {
+      background: transparent;
+      border: none;
+      color: var(--ink-faint);
+      padding: 0 8px;
+      height: 24px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+    }
+    .btn-ghost:hover { color: var(--terracotta); }
+
+    /* ── Tags ── */
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      min-height: 36px;
+    }
+    .ing-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px 5px 12px;
+      background: var(--parchment);
+      border: 1px solid rgba(196,98,58,0.2);
+      border-radius: 30px;
+      font-size: 13px;
+      color: var(--ink);
+      animation: tagIn 0.2s ease;
+    }
+    @keyframes tagIn {
+      from { opacity: 0; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .ing-tag .tag-name { font-weight: 500; }
+    .ing-tag .tag-amt {
+      font-size: 12px;
+      color: var(--ink-muted);
+      background: rgba(28,28,26,0.06);
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+    .ing-tag .tag-rm {
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--ink-faint);
+      font-size: 14px;
+      line-height: 1;
+      padding: 0;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.1s;
+    }
+    .ing-tag .tag-rm:hover { background: rgba(196,98,58,0.15); color: var(--terracotta); }
+    .no-tags {
+      font-size: 13px;
+      color: var(--ink-faint);
+      font-style: italic;
+      padding: 6px 0;
+    }
+
+    /* ── Filters ── */
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .filter-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-faint);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    select {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 7L11 1' stroke='%239A958E' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    select:focus {
+      border-color: var(--terracotta);
+      box-shadow: 0 0 0 3px rgba(196,98,58,0.12);
+    }
+
+    /* ── API key ── */
+    .api-key-row {
+      background: var(--parchment);
+      border: 1px solid rgba(196,98,58,0.2);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .api-key-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      margin-bottom: 6px;
+    }
+    .api-key-input {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .api-key-input:focus {
+      border-color: var(--terracotta);
+      box-shadow: 0 0 0 3px rgba(196,98,58,0.12);
+    }
+    .api-key-hint {
+      font-size: 11px;
+      color: var(--ink-faint);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .api-key-hint a { color: var(--terracotta); text-decoration: none; }
+    .api-key-hint a:hover { text-decoration: underline; }
+
+    /* ── Generate button ── */
+    .generate-wrap {
+      margin-top: 1.5rem;
+    }
+    .btn-generate {
+      width: 100%;
+      height: 52px;
+      background: var(--forest);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-style: italic;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      letter-spacing: 0.01em;
+    }
+    .btn-generate:hover { background: var(--forest-light); box-shadow: var(--shadow-md); }
+    .btn-generate:active { transform: scale(0.99); }
+    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-generate .arrow { font-style: normal; font-family: 'DM Sans', sans-serif; opacity: 0.7; }
+
+    /* ── Results ── */
+    #results { margin-top: 1.5rem; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .results-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--ink);
+    }
+    .results-count {
+      font-size: 13px;
+      color: var(--ink-muted);
+      background: var(--parchment);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* ── Meal cards ── */
+    .meal-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+      animation: cardIn 0.3s ease both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .meal-card:nth-child(2) { animation-delay: 0.06s; }
+    .meal-card:nth-child(3) { animation-delay: 0.12s; }
+    .meal-card:nth-child(4) { animation-delay: 0.18s; }
+    .meal-card:nth-child(5) { animation-delay: 0.24s; }
+    .meal-card:nth-child(6) { animation-delay: 0.30s; }
+    .meal-card:hover { box-shadow: var(--shadow-md); }
+    .meal-card.open { box-shadow: var(--shadow-md); }
+
+    .meal-head {
+      padding: 1.25rem 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .meal-head-main { flex: 1; }
+    .meal-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .meal-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+    .badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+    .badge-cuisine { background: #EEF3FF; color: #3B5BDB; }
+    .badge-time { background: #FFF4E6; color: #C96600; }
+    .badge-serves { background: #EBFBEE; color: #2B8A3E; }
+    .badge-easy { background: #EBFBEE; color: #2B8A3E; }
+    .badge-medium { background: #FFF4E6; color: #C96600; }
+    .badge-hard { background: #FFF5F5; color: #C92A2A; }
+    .meal-chevron {
+      color: var(--ink-faint);
+      font-size: 18px;
+      transition: transform 0.25s;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .meal-card.open .meal-chevron { transform: rotate(180deg); }
+
+    .meal-body {
+      display: none;
+      padding: 0 1.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .meal-card.open .meal-body { display: block; }
+
+    .meal-desc {
+      font-size: 14px;
+      color: var(--ink-muted);
+      line-height: 1.65;
+      padding: 1rem 0 1.25rem;
+    }
+
+    .meal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .meal-section-title {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-faint);
+      margin-bottom: 8px;
+    }
+    .chip-list { display: flex; flex-wrap: wrap; gap: 5px; }
+    .chip {
+      font-size: 12px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: var(--parchment);
+      color: var(--ink-muted);
+      border: 1px solid rgba(196,98,58,0.15);
+    }
+    .chip.missing {
+      background: #FFF5F5;
+      color: #C92A2A;
+      border-color: rgba(201,42,42,0.2);
+    }
+
+    .steps-ol {
+      list-style: none;
+      counter-reset: steps;
+    }
+    .steps-ol li {
+      counter-increment: steps;
+      display: flex;
+      gap: 12px;
+      font-size: 13.5px;
+      color: var(--ink-muted);
+      line-height: 1.6;
+      padding: 5px 0;
+    }
+    .steps-ol li::before {
+      content: counter(steps);
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      background: var(--terracotta);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+      margin-top: 1px;
+    }
+
+    .meal-footer {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+    .btn-full-recipe {
+      height: 36px;
+      padding: 0 16px;
+      background: var(--terracotta);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-full-recipe:hover { background: var(--terracotta-dark); }
+
+    /* ── Loading & error ── */
+    .loading-state {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 3rem 2rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .loading-state p {
+      font-size: 15px;
+      color: var(--ink-muted);
+      margin-top: 1rem;
+      font-style: italic;
+    }
+    .loader {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--parchment);
+      border-top-color: var(--terracotta);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-state {
+      background: #FFF5F5;
+      border: 1px solid rgba(201,42,42,0.25);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      color: #C92A2A;
+      font-size: 14px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+    }
+    footer p {
+      font-size: 13px;
+      color: var(--ink-faint);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-ornament { display: none; }
+      .filters-grid { grid-template-columns: 1fr; }
+      .meal-grid { grid-template-columns: 1fr; }
+      .ing-row { flex-wrap: wrap; }
+      .ing-row input.qty-field { flex: 0 0 72px; }
+      .ing-row select.unit-select { flex: 0 0 90px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-mark">Set The Table</span>
+        <span class="logo-sub">Meal Planner</span>
+      </div>
+      <span class="header-tagline">Turn ingredients into inspiration</span>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div>
+      <h1>What's in your <em>kitchen?</em></h1>
+      <p>Add the ingredients you have on hand and we'll suggest meals you can cook right now — filtered by cuisine, servings, and prep time.</p>
+    </div>
+    <div class="hero-ornament">🍳</div>
+  </div>
+
+  <!-- Main -->
+  <div class="container">
+
+    <!-- Ingredients panel -->
+    <div class="panel">
+      <div class="panel-title">
+        <div class="icon">🥕</div>
+        Your Ingredients
+      </div>
+      <div class="ing-row">
+        <input type="text" id="ing-name" placeholder="Ingredient — e.g. chicken breast, garlic, pasta…" onkeydown="if(event.key==='Enter')addIngredient()" />
+        <input type="number" id="ing-qty" class="qty-field" placeholder="Qty" min="0" step="any" onkeydown="if(event.key==='Enter')addIngredient()" />
+        <select id="ing-unit" class="unit-select">
+          <option value="">unit</option>
+          <optgroup label="Weight">
+            <option>oz</option><option>lb</option><option>g</option><option>kg</option>
+          </optgroup>
+          <optgroup label="Volume">
+            <option>tsp</option><option>tbsp</option><option>fl oz</option><option>cup</option>
+            <option>pint</option><option>quart</option><option>gallon</option><option>ml</option><option>L</option>
+          </optgroup>
+          <optgroup label="Count">
+            <option>whole</option><option>piece</option><option>slice</option><option>clove</option>
+            <option>can</option><option>bunch</option><option>bag</option><option>box</option>
+            <option>jar</option><option>pinch</option>
+          </optgroup>
+        </select>
+        <button class="btn btn-primary" onclick="addIngredient()">Add</button>
+      </div>
+      <div class="tag-list" id="tag-list">
+        <span class="no-tags" id="no-tags-msg">No ingredients added yet — start typing above</span>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;" id="clear-wrap" style="display:none">
+        <button class="btn btn-outline" style="height:32px;font-size:12px;padding:0 12px;" onclick="clearAll()">Clear all</button>
+      </div>
+    </div>
+
+    <!-- Filters panel -->
+    <div class="panel">
+      <div class="panel-title">
+        <div class="icon">🔍</div>
+        Filters
+      </div>
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label for="f-cuisine">Cuisine</label>
+          <select id="f-cuisine">
+            <option value="">Any cuisine</option>
+            <option>Italian</option>
+            <option>Asian</option>
+            <option>Mexican</option>
+            <option>Indian</option>
+            <option>Mediterranean</option>
+            <option>American</option>
+            <option>Middle Eastern</option>
+            <option>French</option>
+            <option>Japanese</option>
+            <option>Thai</option>
+            <option>Greek</option>
+            <option>Spanish</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="f-serves">Servings</label>
+          <select id="f-serves">
+            <option value="">Any amount</option>
+            <option value="1">Just me (1)</option>
+            <option value="2">2 people</option>
+            <option value="4">4 people</option>
+            <option value="6">6 or more</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="f-time">Ready in</label>
+          <select id="f-time">
+            <option value="">Any time</option>
+            <option value="15">Under 15 minutes</option>
+            <option value="30">Under 30 minutes</option>
+            <option value="45">Under 45 minutes</option>
+            <option value="60">Under 1 hour</option>
+            <option value="90">Under 90 minutes</option>
+          </select>
+        </div>
+      </div>
+      <div class="generate-wrap">
+        <div class="api-key-row">
+          <label class="api-key-label" for="api-key-input">🔑 Anthropic API Key</label>
+          <input type="password" id="api-key-input" placeholder="sk-ant-…  (required to generate meals)" class="api-key-input" />
+          <p class="api-key-hint">Your key is never stored or sent anywhere except directly to Anthropic. Get one free at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</p>
+        </div>
+        <button class="btn-generate" id="gen-btn" onclick="generateMeals()">
+          <em>Find meals I can make</em>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results"></div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>Set The Table &mdash; Powered by Claude AI &nbsp;·&nbsp; Add your ingredients and let inspiration do the rest.</p>
+  </footer>
+
+  <script>
+    // ── API KEY ──
+    // Enter your Anthropic API key below, or leave blank to use the on-screen input.
+    const HARDCODED_KEY = '';
+
+    const ingredients = [];
+
+    function getApiKey() {
+      return HARDCODED_KEY || (document.getElementById('api-key-input') && document.getElementById('api-key-input').value.trim()) || '';
+    }
+
+    function addIngredient() {
+      const nameEl = document.getElementById('ing-name');
+      const qtyEl  = document.getElementById('ing-qty');
+      const unitEl = document.getElementById('ing-unit');
+      const name = nameEl.value.trim();
+      if (!name) { nameEl.focus(); return; }
+      const qty  = qtyEl.value.trim();
+      const unit = unitEl.value;
+      const amount = qty && unit ? `${qty} ${unit}` : qty || unit || '';
+      ingredients.push({ name, amount });
+      nameEl.value = ''; qtyEl.value = ''; unitEl.value = '';
+      nameEl.focus();
+      renderTags();
+    }
+
+    function removeIngredient(i) {
+      ingredients.splice(i, 1);
+      renderTags();
+    }
+
+    function clearAll() {
+      ingredients.length = 0;
+      renderTags();
+    }
+
+    function renderTags() {
+      const list = document.getElementById('tag-list');
+      const clearWrap = document.getElementById('clear-wrap');
+      if (ingredients.length === 0) {
+        list.innerHTML = '<span class="no-tags" id="no-tags-msg">No ingredients added yet — start typing above</span>';
+        clearWrap.style.display = 'none';
+        return;
+      }
+      clearWrap.style.display = 'flex';
+      list.innerHTML = ingredients.map((ing, i) => `
+        <span class="ing-tag">
+          <span class="tag-name">${escHtml(ing.name)}</span>
+          ${ing.amount ? `<span class="tag-amt">${escHtml(ing.amount)}</span>` : ''}
+          <button class="tag-rm" onclick="removeIngredient(${i})" title="Remove">✕</button>
+        </span>`).join('');
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function generateMeals() {
+      if (ingredients.length === 0) {
+        document.getElementById('ing-name').focus();
+        document.getElementById('ing-name').style.borderColor = 'var(--terracotta)';
+        setTimeout(() => document.getElementById('ing-name').style.borderColor = '', 1500);
+        return;
+      }
+      const cuisine = document.getElementById('f-cuisine').value;
+      const serves = document.getElementById('f-serves').value;
+      const time = document.getElementById('f-time').value;
+      const btn = document.getElementById('gen-btn');
+      const results = document.getElementById('results');
+
+      btn.disabled = true;
+      btn.querySelector('em').textContent = 'Finding meals…';
+      results.innerHTML = `
+        <div class="loading-state">
+          <div class="loader"></div>
+          <p>Asking the chef for ideas…</p>
+        </div>`;
+
+      const ingList = ingredients.map(i => i.amount ? `${i.name} (${i.amount})` : i.name).join(', ');
+      const filters = [
+        cuisine ? `Cuisine: ${cuisine}` : '',
+        serves ? `Servings: ${serves}` : '',
+        time ? `Ready in under ${time} minutes` : ''
+      ].filter(Boolean).join('; ');
+
+      const prompt = `You are a creative, practical chef. Given these kitchen ingredients: ${ingList}
+${filters ? `\nUser preferences: ${filters}` : ''}
+
+Suggest exactly 6 diverse, realistic meals. Return ONLY a valid JSON array — no markdown, no preamble. Each object must have:
+- name: string
+- cuisine: string
+- servings: number
+- time_minutes: number
+- difficulty: "easy" | "medium" | "hard"
+- description: string (2 sentences, enticing)
+- uses_ingredients: string[] (from the provided list)
+- extra_ingredients_needed: string[] (common pantry items only, max 3)
+- steps: string[] (4-5 concise steps)`;
+
+      try {
+        const apiKey = getApiKey();
+        if (!apiKey) {
+          results.innerHTML = `<div class="error-state">⚠️ Please enter your Anthropic API key in the field above the button.</div>`;
+          btn.disabled = false;
+          btn.querySelector('em').textContent = 'Find meals I can make';
+          return;
+        }
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 2000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error.message);
+        const text = data.content.map(c => c.text || '').join('');
+        const clean = text.replace(/```json|```/g, '').trim();
+        const meals = JSON.parse(clean);
+        renderMeals(meals);
+      } catch(e) {
+        results.innerHTML = `<div class="error-state">⚠️ Couldn't load meal suggestions. Check your API key or connection and try again.<br><small style="opacity:0.7;margin-top:4px;display:block">${e.message}</small></div>`;
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('em').textContent = 'Find meals I can make';
+      }
+    }
+
+    function renderMeals(meals) {
+      const results = document.getElementById('results');
+      if (!meals || !meals.length) {
+        results.innerHTML = '<div class="error-state">No meals found. Try removing a filter or adding more ingredients.</div>';
+        return;
+      }
+      results.innerHTML = `
+        <div class="results-header">
+          <h2 class="results-title">Meal suggestions</h2>
+          <span class="results-count">${meals.length} ideas</span>
+        </div>
+        ${meals.map((m, i) => buildCard(m, i)).join('')}`;
+    }
+
+    function buildCard(m, i) {
+      const diffClass = `badge-${m.difficulty}`;
+      const uses = (m.uses_ingredients || []).map(s => `<span class="chip">${escHtml(s)}</span>`).join('');
+      const extra = (m.extra_ingredients_needed || []).map(s => `<span class="chip missing">${escHtml(s)}</span>`).join('');
+      const steps = (m.steps || []).map(s => `<li>${escHtml(s)}</li>`).join('');
+      return `
+        <div class="meal-card" id="mc-${i}">
+          <div class="meal-head" onclick="toggleCard(${i})">
+            <div class="meal-head-main">
+              <div class="meal-name">${escHtml(m.name)}</div>
+              <div class="meal-badges">
+                <span class="badge badge-cuisine">${escHtml(m.cuisine)}</span>
+                <span class="badge badge-time">⏱ ${m.time_minutes} min</span>
+                <span class="badge badge-serves">👥 ${m.servings} serving${m.servings !== 1 ? 's' : ''}</span>
+                <span class="badge ${diffClass}">${m.difficulty}</span>
+              </div>
+            </div>
+            <span class="meal-chevron">▾</span>
+          </div>
+          <div class="meal-body">
+            <p class="meal-desc">${escHtml(m.description)}</p>
+            <div class="meal-grid">
+              <div>
+                <div class="meal-section-title">Ingredients you have</div>
+                <div class="chip-list">${uses || '<span style="font-size:12px;color:var(--ink-faint)">—</span>'}</div>
+              </div>
+              ${extra ? `<div>
+                <div class="meal-section-title">You may also need</div>
+                <div class="chip-list">${extra}</div>
+              </div>` : ''}
+            </div>
+            <div class="meal-section-title">Steps</div>
+            <ol class="steps-ol">${steps}</ol>
+            <div class="meal-footer">
+              <button class="btn-full-recipe" onclick="askFullRecipe('${escHtml(m.name).replace(/'/g,"\\'")}')">Full recipe & measurements →</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function toggleCard(i) {
+      document.getElementById(`mc-${i}`).classList.toggle('open');
+    }
+
+    function askFullRecipe(name) {
+      alert(`To get the full recipe for "${name}", connect this app to Claude.ai chat or integrate with your preferred AI assistant.`);
+    }
+  </script>
+</body>
+</html>
